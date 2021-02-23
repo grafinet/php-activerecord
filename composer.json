@@ -1,5 +1,6 @@
 {
-    "name": "srsbiz/php-activerecord",
+    "name": "grafinet/php-activerecord",
+    "version": "2.8.2",
     "type": "library",
     "description": "php-activerecord is an open source ORM library based on the ActiveRecord pattern.",
     "keywords": ["activerecord", "orm"],
