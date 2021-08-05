@@ -387,7 +387,7 @@ abstract class Connection
 	{
 		$sth = $this->query($sql, $values);
 		$row = $sth->fetch(PDO::FETCH_NUM);
-		return $row[0];
+		return \is_array($row) ? $row[0] : null;
 	}
 
 	/**
