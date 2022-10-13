@@ -259,7 +259,7 @@ class Model
 	 * @param boolean $guard_attributes Set to true to guard protected/non-accessible attributes
 	 * @param boolean $instantiating_via_find Set to true if this model is being created from a find call
 	 * @param boolean $new_record Set to true if this should be considered a new record
-	 * @return Model
+	 * @return static
 	 */
 	public function __construct(array $attributes=array(), $guard_attributes=true, $instantiating_via_find=false, $new_record=true)
 	{
@@ -776,7 +776,7 @@ class Model
 	 * @param array $attributes Array of the models attributes
 	 * @param boolean $validate True if the validators should be run
 	 * @param boolean $guard_attributes Set to true to guard protected/non-accessible attributes
-	 * @return Model
+	 * @return static
 	 */
 	public static function create($attributes, $validate=true, $guard_attributes=true)
 	{
@@ -1280,7 +1280,7 @@ class Model
 	/**
 	 * Reloads the attributes and relationships of this object from the database.
 	 *
-	 * @return Model
+	 * @return static
 	 */
 	public function reload()
 	{
@@ -1353,7 +1353,7 @@ class Model
 	 *
 	 * @param string $method Name of method
 	 * @param mixed $args Method args
-	 * @return Model
+	 * @return static
 	 * @throws {@link ActiveRecordException} if invalid query
 	 * @see find
 	 */
@@ -1434,7 +1434,7 @@ class Model
 	 * Alias for self::find('all').
 	 *
 	 * @see find
-	 * @return array array of records found
+	 * @return static[] array of records found
 	 */
 	public static function all(/* ... */)
 	{
@@ -1492,7 +1492,7 @@ class Model
 	 * Alias for self::find('first').
 	 *
 	 * @see find
-	 * @return Model The first matched record or null if not found
+	 * @return static The first matched record or null if not found
 	 */
 	public static function first(/* ... */)
 	{
@@ -1503,7 +1503,7 @@ class Model
 	 * Alias for self::find('last')
 	 *
 	 * @see find
-	 * @return Model The last matched record or null if not found
+	 * @return static The last matched record or null if not found
 	 */
 	public static function last(/* ... */)
 	{
@@ -1559,7 +1559,7 @@ class Model
 	 * </ul>
 	 *
 	 * @throws {@link RecordNotFound} if no options are passed or finding by pk and no records matched
-	 * @return mixed An array of records found if doing a find_all otherwise a
+	 * @return static|static[]|null An array of records found if doing a find_all otherwise a
 	 *   single Model object or null if it wasn't found. NULL is only return when
 	 *   doing a first/last find. If doing an all find and no records matched this
 	 *   will return an empty array.
@@ -1649,7 +1649,7 @@ class Model
 	 * @see find
 	 * @param array $values An array containing values for the pk
 	 * @param array $options An options array
-	 * @return Model
+	 * @return static
 	 * @throws {@link RecordNotFound} if a record could not be found
 	 */
 	public static function find_by_pk($values, $options)
@@ -1699,7 +1699,7 @@ class Model
 	 *
 	 * @param string $sql The raw SELECT query
 	 * @param array $values An array of values for any parameters that needs to be bound
-	 * @return array An array of models
+	 * @return static[] An array of models
 	 */
 	public static function find_by_sql($sql, $values=null)
 	{
