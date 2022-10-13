@@ -388,7 +388,7 @@ class SQLBuilder
 
 	private function build_update()
 	{
-		if (strlen($this->update) > 0)
+		if (strlen((string)$this->update) > 0)
 			$set = $this->update;
 		else
 			$set = implode('=?, ', $this->quoted_key_names()) . '=?';
