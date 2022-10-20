@@ -21,15 +21,15 @@ interface DateTimeInterface
 	 * @param string $attribute_name The attribute name 
 	 * @return void
 	 */
-	public function attribute_of($model, $attribute_name);
+	public function attribute_of($model, $attribute_name): void;
 
 	/**
 	 * Formats the DateTime to the specified format.
 	 */
-	public function format($format=null);
+	public function format($format=null): string;
 
 	/**
 	 * See http://php.net/manual/en/datetime.createfromformat.php
 	 */
-	public static function createFromFormat($format, $time, $tz = null);
+	public static function createFromFormat($format, $time, $tz = null): \DateTime|false;
 }
