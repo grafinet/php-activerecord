@@ -1868,9 +1868,9 @@ class Model
 	 *
 	 * @param string $type Either Xml, Json, Csv or Array
 	 * @param array $options Options array for the serializer
-	 * @return string Serialized representation of the model
+	 * @return string|array Serialized representation of the model
 	 */
-	private function serialize($type, $options): string
+	private function serialize($type, $options): mixed
 	{
 		require_once 'Serialization.php';
 		$class = "ActiveRecord\\{$type}Serializer";
