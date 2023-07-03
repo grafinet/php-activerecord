@@ -276,8 +276,7 @@ abstract class Connection
 	/**
 	 * Class Connection is a singleton. Access it via instance().
 	 *
-	 * @param array $info Array containing URL parts
-	 * @return Connection
+	 * @param object $info Array containing URL parts
 	 */
 	protected function __construct($info)
 	{
@@ -550,7 +549,7 @@ abstract class Connection
 	 * Adds a limit clause to the SQL query.
 	 *
 	 * @param string $sql The SQL statement.
-	 * @param int $offset Row offset to start at.
+	 * @param int|null $offset Row offset to start at.
 	 * @param int $limit Maximum number of rows to return.
 	 * @return string The SQL query that will limit results to specified parameters
 	 */
@@ -560,7 +559,7 @@ abstract class Connection
 	 * Query for column meta info and return statement handle.
 	 *
 	 * @param string $table Name of a table
-	 * @return PDOStatement
+	 * @return \PDOStatement
 	 */
 	abstract public function query_column_info($table);
 
@@ -568,7 +567,7 @@ abstract class Connection
 	 * Query for all tables in the current database. The result must only
 	 * contain one column which has the name of the table.
 	 *
-	 * @return PDOStatement
+	 * @return \PDOStatement
 	 */
 	abstract function query_for_tables();
 

@@ -248,7 +248,7 @@ class Model
 	 * Constructs a model.
 	 *
 	 * When a user instantiates a new object (e.g.: it was not ActiveRecord that instantiated via a find)
-	 * then @var $attributes will be mapped according to the schema's defaults. Otherwise, the given
+	 * then @var array $attributes will be mapped according to the schema's defaults. Otherwise, the given
 	 * $attributes will be mapped via set_attributes_via_mass_assignment.
 	 *
 	 * <code>
@@ -259,7 +259,6 @@ class Model
 	 * @param boolean $guard_attributes Set to true to guard protected/non-accessible attributes
 	 * @param boolean $instantiating_via_find Set to true if this model is being created from a find call
 	 * @param boolean $new_record Set to true if this should be considered a new record
-	 * @return static
 	 */
 	public function __construct(array $attributes=array(), $guard_attributes=true, $instantiating_via_find=false, $new_record=true)
 	{
@@ -733,7 +732,7 @@ class Model
 	 *
 	 * @param boolean $readonly Set to true to put the model into readonly mode
 	 */
-	public function readonly($readonly=true): bool
+	public function readonly($readonly=true): void
 	{
 		$this->__readonly = $readonly;
 	}
@@ -1253,7 +1252,7 @@ class Model
 	 *
 	 * @internal This should <strong>only</strong> be used by eager load
 	 * @param Model $model
-	 * @param $name of relationship for this table
+	 * @param string $name of relationship for this table
 	 * @return mixed
 	 */
 	public function set_relationship_from_eager_load(Model $model=null, $name): mixed
@@ -1887,7 +1886,7 @@ class Model
 	 */
 	private function invoke_callback($method_name, $must_exist=true): bool
 	{
-		return static::table()->callback->invoke($this,$method_name,$must_exist);
+		return static::table()->callback->invoke($this, $method_name, $must_exist);
 	}
 
 	/**
