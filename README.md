@@ -1,4 +1,4 @@
-# PHP ActiveRecord - Version 2.4.2 #
+# PHP ActiveRecord - Version 3.1.0 #
 
 by 
 
@@ -26,7 +26,7 @@ Of course, there are some differences which will be obvious to the user if they 
 
 ## Minimum Requirements ##
 
-- PHP 5.3+
+- PHP 8.1+
 - PDO driver for your respective database
 
 ## Supported Databases ##
