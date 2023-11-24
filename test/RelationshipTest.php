@@ -256,7 +256,7 @@ class RelationshipTest extends DatabaseTest
 
 	public function test_belongs_to_with_an_invalid_option()
 	{
-		Event::$belongs_to[0]['joins'] = 'venue';
+		Event::$belongs_to[0]['joins'] = 'venues';
 		$event = Event::first()->venue;
 		$this->assert_sql_doesnt_has('INNER JOIN venues ON(events.venue_id = venues.id)',Event::table()->last_sql);
 	}
