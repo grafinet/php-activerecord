@@ -22,6 +22,7 @@ interface InterfaceRelationship
  * @package ActiveRecord
  * @see http://www.phpactiverecord.org/guides/associations
  */
+#[\AllowDynamicProperties]
 abstract class AbstractRelationship implements InterfaceRelationship
 {
 	/**
@@ -291,7 +292,7 @@ abstract class AbstractRelationship implements InterfaceRelationship
 		if (!has_absolute_namespace($class_name) && isset($this->options['namespace'])) {
 			$class_name = $this->options['namespace'].'\\'.$class_name;
 		}
-		
+
 		$reflection = Reflections::instance()->add($class_name)->get($class_name);
 
 		if (!$reflection->isSubClassOf('ActiveRecord\\Model'))
@@ -507,7 +508,7 @@ class HasMany extends AbstractRelationship
 				$fk = $this->foreign_key;
 
 				$this->set_keys($this->get_table()->class->getName(), true);
-				
+
 				$class = $this->class_name;
 				$relation = $class::table()->get_relationship($this->through);
 				$through_table = $relation->get_table();

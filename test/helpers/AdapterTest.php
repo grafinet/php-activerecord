@@ -16,8 +16,10 @@ class AdapterTest extends DatabaseTest
 
 	public function test_i_has_a_default_port_unless_im_sqlite()
 	{
-		if ($this->conn instanceof ActiveRecord\SqliteAdapter)
+		if ($this->conn instanceof ActiveRecord\SqliteAdapter) {
+			$this->markTestSkipped('not supported');
 			return;
+		}
 
 		$c = $this->conn;
 		$this->assert_true($c::$DEFAULT_PORT > 0);
@@ -35,49 +37,39 @@ class AdapterTest extends DatabaseTest
 		$this->assert_not_null(ActiveRecord\Connection::instance());
 	}
 
-	/**
-	 * @expectedException ActiveRecord\DatabaseException
-	 */
 	public function test_invalid_connection_protocol()
 	{
+		$this->expectException(\ActiveRecord\DatabaseException::class);
 		ActiveRecord\Connection::instance('terribledb://user:pass@host/db');
 	}
 
-	/**
-	 * @expectedException ActiveRecord\DatabaseException
-	 */
 	public function test_no_host_connection()
 	{
+		$this->expectException(\ActiveRecord\DatabaseException::class);
 		if (!$GLOBALS['slow_tests'])
 			throw new ActiveRecord\DatabaseException("");
 
 		ActiveRecord\Connection::instance("{$this->conn->protocol}://user:pass");
 	}
 
-	/**
-	 * @expectedException ActiveRecord\DatabaseException
-	 */
 	public function test_connection_failed_invalid_host()
 	{
+		$this->expectException(\ActiveRecord\DatabaseException::class);
 		if (!$GLOBALS['slow_tests'])
 			throw new ActiveRecord\DatabaseException("");
 
 		ActiveRecord\Connection::instance("{$this->conn->protocol}://user:pass/1.1.1.1/db");
 	}
 
-	/**
-	 * @expectedException ActiveRecord\DatabaseException
-	 */
 	public function test_connection_failed()
 	{
+		$this->expectException(\ActiveRecord\DatabaseException::class);
 		ActiveRecord\Connection::instance("{$this->conn->protocol}://baduser:badpass@127.0.0.1/db");
 	}
 
-	/**
-	 * @expectedException ActiveRecord\DatabaseException
-	 */
 	public function test_connect_failed()
 	{
+		$this->expectException(\ActiveRecord\DatabaseException::class);
 		ActiveRecord\Connection::instance("{$this->conn->protocol}://zzz:zzz@127.0.0.1/test");
 	}
 
@@ -95,15 +87,18 @@ class AdapterTest extends DatabaseTest
 		}
 		$connection_string = "{$connection_string}@{$url['host']}:$port{$url['path']}";
 
-		if ($this->conn->protocol != 'sqlite')
-			ActiveRecord\Connection::instance($connection_string);
+		if ($this->conn->protocol == 'sqlite')
+			$this->markTestSkipped('sqlite does not use port');
+
+		$this->assertInstanceOf(
+			\ActiveRecord\Connection::class,
+			ActiveRecord\Connection::instance($connection_string)
+		);
 	}
 
-	/**
-	 * @expectedException ActiveRecord\DatabaseException
-	 */
 	public function test_connect_to_invalid_database()
 	{
+		$this->expectException(\ActiveRecord\DatabaseException::class);
 		ActiveRecord\Connection::instance("{$this->conn->protocol}://test:test@127.0.0.1/" . self::InvalidDb);
 	}
 
@@ -149,6 +144,8 @@ class AdapterTest extends DatabaseTest
 		{
 			$author_columns = $this->conn->columns('authors');
 			$this->assert_equals('authors_author_id_seq',$author_columns['author_id']->sequence);
+		} else {
+			$this->markTestSkipped('Sequence not supported');
 		}
 	}
 
@@ -192,11 +189,9 @@ class AdapterTest extends DatabaseTest
 		$this->assert_equals('Tito',$row['name']);
 	}
 
-	/**
-	 * @expectedException ActiveRecord\DatabaseException
-	 */
 	public function test_invalid_query()
 	{
+		$this->expectException(\ActiveRecord\DatabaseException::class);
 		$this->conn->query('alsdkjfsdf');
 	}
 
@@ -269,13 +264,14 @@ class AdapterTest extends DatabaseTest
 		if ($this->conn instanceof ActiveRecord\OciAdapter)
 			$names = array_filter(array_map('strtolower',$names),function($s) { return $s !== 'some_time'; });
 
-		foreach ($names as $field)
-			$this->assert_true(array_key_exists($field,$columns));
+		foreach ($names as $field) {
+			$this->assertTrue(array_key_exists($field, $columns), "Missing column: $field");
+		}
 
 		$this->assert_equals(true,$columns['author_id']->pk);
 		$this->assert_equals('int',$columns['author_id']->raw_type);
 		$this->assert_equals(Column::INTEGER,$columns['author_id']->type);
-		$this->assert_true($columns['author_id']->length > 1);
+		$this->assertTrue($columns['author_id']->length > 1, \sprintf("Expected %s to be > 1", $columns['author_id']->length));
 		$this->assert_false($columns['author_id']->nullable);
 
 		$this->assert_equals(false,$columns['parent_author_id']->pk);
@@ -339,12 +335,12 @@ class AdapterTest extends DatabaseTest
 
 	public function test_query_column_info()
 	{
-		$this->assert_greater_than(0,count($this->conn->query_column_info("authors")));
+		$this->assert_greater_than(0,$this->conn->query_column_info("authors")->rowCount());
 	}
 
 	public function test_query_table_info()
 	{
-		$this->assert_greater_than(0,count($this->conn->query_for_tables()));
+		$this->assert_greater_than(0,$this->conn->query_for_tables()->rowCount());
 	}
 
 	public function test_query_table_info_must_return_one_field()

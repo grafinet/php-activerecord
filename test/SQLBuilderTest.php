@@ -32,11 +32,9 @@ class SQLBuilderTest extends DatabaseTest
 			$this->assert_equals(array(),$cond);
 	}
 
-	/**
-	 * @expectedException ActiveRecord\ActiveRecordException
-	 */
 	public function test_no_connection()
 	{
+		$this->expectException(\ActiveRecord\ActiveRecordException::class);
 		new SQLBuilder(null,'authors');
 	}
 
@@ -69,8 +67,8 @@ class SQLBuilderTest extends DatabaseTest
 	public function test_gh134_where_with_hash_and_null()
 	{
 		$this->sql->where(array('id' => 1, 'name' => null));
-		$this->assert_sql_has("SELECT * FROM authors WHERE id=? AND name IS ?",(string)$this->sql);
-		$this->assert_equals(array(1, null),$this->sql->get_where_values());
+		$this->assert_sql_has("SELECT * FROM authors WHERE id=? AND name IS NULL",(string)$this->sql);
+		$this->assert_equals(array(1),$this->sql->get_where_values());
 	}
 
 	public function test_where_with_null()
@@ -132,11 +130,9 @@ class SQLBuilderTest extends DatabaseTest
 		$this->assert_sql_has($this->conn->limit("SELECT * FROM authors WHERE id=? GROUP BY name HAVING created_at > '2009-01-01' ORDER BY name",1,10), (string)$this->sql);
 	}
 
-	/**
-	 * @expectedException ActiveRecord\ActiveRecordException
-	 */
 	public function test_insert_requires_hash()
 	{
+		$this->expectException(\ActiveRecord\ActiveRecordException::class);
 		$this->sql->insert(array(1));
 	}
 

@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/../lib/Inflector.php';
 
+#[\AllowDynamicProperties]
 class InflectorTest extends SnakeCase_PHPUnit_Framework_TestCase
 {
 	public function set_up()

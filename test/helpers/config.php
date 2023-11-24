@@ -17,12 +17,12 @@
  *
  **/
 
-require_once 'vendor/autoload.php';
+require_once __DIR__ . '/../../vendor/autoload.php';
 
-require_once 'SnakeCase_PHPUnit_Framework_TestCase.php';
+require_once __DIR__ . '/SnakeCase_PHPUnit_Framework_TestCase.php';
 
-require_once 'DatabaseTest.php';
-require_once 'AdapterTest.php';
+require_once __DIR__ . '/DatabaseTest.php';
+require_once __DIR__ . '/AdapterTest.php';
 
 require_once __DIR__ . '/../../ActiveRecord.php';
 
@@ -58,7 +58,7 @@ ActiveRecord\Config::initialize(function($cfg)
 	if (false) // PEAR Log installed
 	{
 		$logger = new Log_file(dirname(__FILE__) . '/../log/query.log','ident',array('mode' => 0664, 'timeFormat' =>  '%Y-%m-%d %H:%M:%S'));
-	
+
 		$cfg->set_logging(true);
 		$cfg->set_logger($logger);
 	}
@@ -69,7 +69,7 @@ ActiveRecord\Config::initialize(function($cfg)
 
 		DatabaseTest::$log = false;
 	}
-	
+
 	if ($GLOBALS['show_warnings']  && !isset($GLOBALS['show_warnings_done']))
 	{
 		if (!extension_loaded('memcache'))

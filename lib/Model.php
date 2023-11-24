@@ -1435,9 +1435,9 @@ class Model
 	 * @see find
 	 * @return static[] array of records found
 	 */
-	public static function all(/* ... */): mixed
+	public static function all(...$args): mixed
 	{
-		return call_user_func_array('static::find',array_merge(array('all'),func_get_args()));
+		return static::find('all', ...$args);
 	}
 
 	/**
@@ -1461,7 +1461,7 @@ class Model
 			if (is_hash($args[0]))
 				$options['conditions'] = $args[0];
 			else
-				$options['conditions'] = call_user_func_array('static::pk_conditions',$args);
+				$options['conditions'] = static::pk_conditions(...$args);
 		}
 
 		$table = static::table();
@@ -1482,9 +1482,9 @@ class Model
 	 * @see find
 	 * @return boolean
 	 */
-	public static function exists(/* ... */): bool
+	public static function exists(...$args): bool
 	{
-		return call_user_func_array('static::count',func_get_args()) > 0 ? true : false;
+		return static::count(...$args) > 0;
 	}
 
 	/**
@@ -1493,9 +1493,9 @@ class Model
 	 * @see find
 	 * @return static|null The first matched record or null if not found
 	 */
-	public static function first(/* ... */): ?static
+	public static function first(...$args): ?static
 	{
-		return call_user_func_array('static::find',array_merge(array('first'),func_get_args()));
+		return static::find('first', ...$args);
 	}
 
 	/**
@@ -1504,9 +1504,9 @@ class Model
 	 * @see find
 	 * @return static|null The last matched record or null if not found
 	 */
-	public static function last(/* ... */): ?static
+	public static function last(...$args): ?static
 	{
-		return call_user_func_array('static::find',array_merge(array('last'),func_get_args()));
+		return static::find('last', ...$args);
 	}
 
 	/**
@@ -1648,10 +1648,10 @@ class Model
 	 * @see find
 	 * @param array $values An array containing values for the pk
 	 * @param array $options An options array
-	 * @return static
+	 * @return static|static[]
 	 * @throws {@link RecordNotFound} if a record could not be found
 	 */
-	public static function find_by_pk($values, $options): static
+	public static function find_by_pk($values, $options): static|array
 	{
 		if($values===null)
 		{

@@ -17,10 +17,8 @@ class ActiveRecordTest extends DatabaseTest
 		$this->assert_false(Author::is_options_hash(array(1,2,3)));
 	}
 
-	/**
-	 * @expectedException ActiveRecord\ActiveRecordException
-	 */
 	public function test_options_hash_with_unknown_keys() {
+		$this->expectException(\ActiveRecord\ActiveRecordException::class);
 		$this->assert_false(Author::is_options_hash(array('conditions' => 'blah', 'sharks' => 'laserz', 'dubya' => 'bush')));
 	}
 
@@ -57,11 +55,9 @@ class ActiveRecordTest extends DatabaseTest
 		$this->assert_equals(array(),Author::extract_and_validate_options($args));
 	}
 
-	/**
-	 * @expectedException ActiveRecord\UndefinedPropertyException
-	 */
 	public function test_invalid_attribute()
 	{
+		$this->expectException(\ActiveRecord\UndefinedPropertyException::class);
 		$author = Author::find('first',array('conditions' => 'author_id=1'));
 		$author->some_invalid_field_name;
 	}
@@ -154,11 +150,11 @@ class ActiveRecordTest extends DatabaseTest
 		$venue->reload();
 		$this->assert_equals('NY', $venue->state);
 	}
-	
+
 	public function test_reload_protected_attribute()
 	{
 		$book = BookAttrAccessible::find(1);
-	
+
 		$book->name = "Should not stay";
 		$book->reload();
 		$this->assert_not_equals("Should not stay", $book->name);
@@ -337,7 +333,7 @@ class ActiveRecordTest extends DatabaseTest
 		$this->assert_equals($original+1,Author::count());
 		$this->assert_true($ret);
 	}
-	
+
 	public function test_transaction_committed_when_returning_true()
 	{
 		$original = Author::count();
@@ -345,21 +341,21 @@ class ActiveRecordTest extends DatabaseTest
 		$this->assert_equals($original+1,Author::count());
 		$this->assert_true($ret);
 	}
-	
+
 	public function test_transaction_rolledback_by_returning_false()
 	{
 		$original = Author::count();
-		
+
 		$ret = Author::transaction(function()
 		{
 			Author::create(array("name" => "blah"));
 			return false;
 		});
-		
+
 		$this->assert_equals($original,Author::count());
 		$this->assert_false($ret);
 	}
-	
+
 	public function test_transaction_rolledback_by_throwing_exception()
 	{
 		$original = Author::count();
@@ -482,11 +478,9 @@ class ActiveRecordTest extends DatabaseTest
 		$this->assert_equals('authors',Author::table_name());
 	}
 
-	/**
-	 * @expectedException ActiveRecord\ActiveRecordException
-	 */
 	public function test_undefined_instance_method()
 	{
+		$this->expectException(\ActiveRecord\ActiveRecordException::class);
 		Author::first()->find_by_name('sdf');
 	}
 

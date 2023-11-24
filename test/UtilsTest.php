@@ -2,6 +2,7 @@
 
 use ActiveRecord as AR;
 
+#[\AllowDynamicProperties]
 class UtilsTest extends SnakeCase_PHPUnit_Framework_TestCase
 {
 	public function set_up()
