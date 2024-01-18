@@ -141,7 +141,7 @@ class RelationshipTest extends DatabaseTest
 
 	public function test_belongs_to_returns_null_when_foreign_key_is_null()
 	{
-		$event = Event::create(array('title' => 'venueless event'));
+		$event = Event::create(array('title' => 'venueless event', 'host_id' => 2));
 		$this->assert_null($event->venue);
 	}
 
@@ -557,9 +557,8 @@ class RelationshipTest extends DatabaseTest
 
 	public function test_eager_loading_has_many_x_with_caching()
 	{
-		$this->markTestSkipped('fails on with php 7+');
 		Publisher::find(array(1, 2, 3), array('include' => 'authors'));
-		$this->assert_sql_has("WHERE publisher_id IN(?)",ActiveRecord\Table::load('Author')->last_sql);
+		$this->assert_sql_has("WHERE publisher_id IN(?,?,?)",ActiveRecord\Table::load('Author')->last_sql);
 	}
 
 	public function test_eager_loading_has_many_with_no_related_rows()

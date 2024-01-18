@@ -125,24 +125,21 @@ class Column
 	{
 		if (is_int($value)) {
 			return $value;
-		}
-
-		// Its just a decimal number
+		} // Its just a decimal number
 		elseif (is_numeric($value) && floor($value) != $value) {
-			return (int) $value;
+			return (int)$value;
 		}
 
 		// If adding 0 to a string causes a float conversion,
 		// we have a number over PHP_INT_MAX
+		elseif (is_string($value) && is_float($value + 0)) {
+			return (string)$value;
+		}
 		// If a float was passed and its greater than PHP_INT_MAX
 		// (which could be wrong due to floating point precision)
 		// We'll also check for equal to (>=) in case the precision
 		// loss creates an overflow on casting
-		elseif (
-			(is_string($value) && is_numeric($value) && is_float($value + 0))
-			||
-			(is_float($value) && $value >= PHP_INT_MAX)
-		) {
+		elseif (is_float($value) && $value >= PHP_INT_MAX) {
 			return number_format($value + 0, 0, '', '');
 		}
 
