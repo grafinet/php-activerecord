@@ -271,7 +271,8 @@ class AdapterTest extends DatabaseTest
 		$this->assert_equals(true,$columns['author_id']->pk);
 		$this->assert_equals('int',$columns['author_id']->raw_type);
 		$this->assert_equals(Column::INTEGER,$columns['author_id']->type);
-		$this->assertTrue($columns['author_id']->length > 1, \sprintf("Expected %s to be > 1", $columns['author_id']->length));
+//		SHOW COLUMNS no longer returns precision for integer fields, except TINYINT(1)
+//		$this->assertTrue($columns['author_id']->length > 1, \sprintf("Expected %s to be > 1", $columns['author_id']->length));
 		$this->assert_false($columns['author_id']->nullable);
 
 		$this->assert_equals(false,$columns['parent_author_id']->pk);

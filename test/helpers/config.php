@@ -30,7 +30,7 @@ require_once __DIR__ . '/../../ActiveRecord.php';
 $GLOBALS['slow_tests'] = false;
 
 // whether or not to show warnings when Log or Memcache is missing
-$GLOBALS['show_warnings'] = true;
+$GLOBALS['show_warnings'] = false;
 
 
 if (getenv('LOG') !== 'false')
