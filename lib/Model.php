@@ -1149,7 +1149,7 @@ class Model
 		if (isset($this->updated_at))
 			$this->updated_at = $now;
 
-		if (isset($this->created_at) && $this->is_new_record())
+		if (isset($this->created_at) && $this->is_new_record() && !$this->created_at)
 			$this->created_at = $now;
 	}
 
