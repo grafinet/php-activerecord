@@ -9,3 +9,5 @@ vendor/*
 composer.lock
 phpunit.xml
 .idea/php-test-framework.xml
+.phpunit.result.cache
+.phpunit.cache/

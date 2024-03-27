@@ -15,6 +15,9 @@
         "pear/log": "~1.12"
     },
     "autoload": {
+        "psr-4": {
+            "PhpActiveRecordQueryBuilder\\" : "src/"
+        },
         "files": [ "ActiveRecord.php" ]
     }
 }
