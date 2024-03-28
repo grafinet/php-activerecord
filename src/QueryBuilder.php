@@ -36,6 +36,7 @@ final class QueryBuilder
     private array $select = [];
     private ?string $from = null;
     private array $joins = [];
+    private array $joinsParameters = [];
     private array $where = [];
     private array $whereParameters = [];
     private array $group = [];
@@ -110,7 +111,6 @@ final class QueryBuilder
     public function toOptionsArray(): array
     {
         $options = [];
-        $params = [];
         if ($this->select) {
             $options['select'] = implode(', ', $this->select);
         }
@@ -125,9 +125,6 @@ final class QueryBuilder
         }
         if ($this->having) {
             $options['having'] = implode(" AND ", $this->having);
-            if ($this->havingParameters) {
-                $params = $this->havingParameters;
-            }
         }
         if ($this->order) {
             $options['order'] = implode(", ", $this->order);
@@ -141,7 +138,7 @@ final class QueryBuilder
         if ($this->include) {
             $options['include'] = $this->include;
         }
-        $params = array_merge($this->whereParameters, $params);
+        $params = array_merge($this->joinsParameters, $this->whereParameters, $this->havingParameters);
         if ($params && !$this->where) {
             $this->where[] = '1=1';
         }
@@ -166,22 +163,38 @@ final class QueryBuilder
         return $this;
     }
 
-    public function join(string $tableName, string $type = '', ?string $on = null): self
+    public function join(string $tableName, string $type = '', null|string|Operator $on = null): self
     {
         $join = ltrim(sprintf('%s JOIN %s', $type, $tableName));
         if (null !== $on) {
             $join .= " ON({$on})";
+            if ($on instanceof Operator and $on->hasValue()) {
+                if ($on instanceof In) {
+                    throw new \RuntimeException(
+                        \sprintf('Unsupported operator type %s for method %s', get_class($on), __METHOD__)
+                    );
+                }
+                $value = $on->getValue();
+                if ($value instanceof ValueBag) {
+                    $values = $value->getValues();
+                } else {
+                    $values = [$value];
+                }
+                if ($values) {
+                    $this->joinsParameters = array_merge($this->joinsParameters, $values);
+                }
+            }
         }
         $this->joins[] = $join;
         return $this;
     }
 
-    public function leftJoin(string $tableName, ?string $on = null): self
+    public function leftJoin(string $tableName, null|string|Operator $on = null): self
     {
         return $this->join($tableName, 'LEFT', $on);
     }
 
-    public function rightJoin(string $tableName, ?string $on = null): self
+    public function rightJoin(string $tableName, null|string|Operator $on = null): self
     {
         return $this->join($tableName, 'RIGHT', $on);
     }

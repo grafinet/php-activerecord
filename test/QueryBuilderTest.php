@@ -28,21 +28,26 @@ class QueryBuilderTest extends TestCase
 
     public function testHasJoinsOption()
     {
-        $options = QueryBuilder::create()
-            ->join('table')
+        $qb = QueryBuilder::create();
+        $options = $qb->join('table')
             ->leftJoin('table_left', 'table_left.id = table.id')
             ->rightJoin('table_right')
-            ->join('table_inner', 'INNER', 'table_inner.id = table.id')
+            ->join('table_inner', 'INNER', $qb->eq('table_inner.id', 42))
             ->toOptionsArray();
         $this->assertArrayHasKey('joins', $options);
+        $this->assertArrayHasKey('conditions', $options);
         $this->assertEquals(<<<EOJ
 JOIN table
 LEFT JOIN table_left ON(table_left.id = table.id)
 RIGHT JOIN table_right
-INNER JOIN table_inner ON(table_inner.id = table.id)
+INNER JOIN table_inner ON(table_inner.id = ?)
 EOJ,
             $options['joins']
         );
+        $this->assertEquals(['1=1', 42], $options['conditions']);
+
+        $this->expectException(RuntimeException::class);
+        $qb->leftJoin('bad_table', $qb->in('e', [1,2,3]));
     }
 
     public function testHasGroupOption()
@@ -171,7 +176,10 @@ EOJ,
             ->from('table tb')
             ->leftJoin('table2 tb2')
             ->rightJoin('table3 tb3', 'tb3.table_id = tb1.id')
-            ->join('table3 tb4', 'INNER', 'tb4.id = tb2.id')
+            ->join('table3 tb4', 'INNER', $qb->and(
+                'tb4.id = tb2.id',
+                $qb->eq('tb4.group', 'test123')
+            ))
             ->where($qb->neq('tb.published_at', null))
             ->where('tb3.active')
             ->where('tb4.priority <> ?', 0)
@@ -200,7 +208,7 @@ EOJ,
             'from' => 'table tb',
             'joins' => 'LEFT JOIN table2 tb2
 RIGHT JOIN table3 tb3 ON(tb3.table_id = tb1.id)
-INNER JOIN table3 tb4 ON(tb4.id = tb2.id)',
+INNER JOIN table3 tb4 ON((tb4.id = tb2.id AND tb4.group = ?))',
             'group' => 'tb3.category, tb2.status',
             'having' => 'cnt BETWEEN ? AND ?',
             'order' => 'tb3.priority DESC, tb1.name ASC',
@@ -209,6 +217,7 @@ INNER JOIN table3 tb4 ON(tb4.id = tb2.id)',
             'include' => ['user', 'category'],
             'conditions' => [
                 'tb.published_at IS NOT NULL AND tb3.active AND tb4.priority <> ? AND tb3.status NOT IN(?) AND (tb.deleted_at IS NULL OR tb2.user_id = ?) AND (tb.id >= ? AND tb.updated_at > ? AND tb.created_at < ? AND tb4.likes <= ?)',
+                'test123',
                 0,
                 ['draft', 'pending'],
                 666,
