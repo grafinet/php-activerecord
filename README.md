@@ -1,4 +1,4 @@
-# PHP ActiveRecord - Version 3.1.0 #
+# PHP ActiveRecord - Version 3.2.0 #
 
 by 
 
@@ -123,6 +123,15 @@ $post = Post::find_by_name_or_id('The Bridge Builder',100);
 
 # finding using a conditions array
 $posts = Post::find('all',array('conditions' => array('name=? or id > ?','The Bridge Builder',100)));
+
+# or finding using QueryBuilder
+$qb = \PhpActiveRecordQueryBuilder\QueryBuilder::create(Post::class);
+$posts = $qb->where(
+    $qb->or(
+        $qb->eq('name', 'The Bridge Builder'),
+        $qb->gt('id', 100)
+    )
+)->all();
 ```
 
 ### Create ###

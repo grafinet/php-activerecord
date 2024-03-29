@@ -25,9 +25,6 @@ use function implode;
 use function ltrim;
 use function sprintf;
 
-/**
- * @psalm-template T
- */
 final class QueryBuilder
 {
     public const ORDER_ASC = 'ASC';
@@ -47,10 +44,6 @@ final class QueryBuilder
     private ?int $offset = null;
     private array $include = [];
 
-    /**
-     * @param string|null $modelClass
-     * @psalm-param class-string<T> $modelClass
-     */
     public function __construct(private readonly ?string $modelClass)
     {
     }
@@ -60,36 +53,24 @@ final class QueryBuilder
         return new self($modelClass);
     }
 
-    /**
-     * @return T[]
-     */
     public function all(): array
     {
         $func = "{$this->modelClass}::all";
         return $func($this->toOptionsArray());
     }
 
-    /**
-     * @return T|null
-     */
     public function first()
     {
         $func = "{$this->modelClass}::first";
         return $func($this->toOptionsArray());
     }
 
-    /**
-     * @return T|null
-     */
     public function last()
     {
         $func = "{$this->modelClass}::last";
         return $func($this->toOptionsArray());
     }
 
-    /**
-     * @return T[]
-     */
     public function find(): array
     {
         $func = "{$this->modelClass}::all";
@@ -163,7 +144,7 @@ final class QueryBuilder
         return $this;
     }
 
-    public function join(string $tableName, string $type = '', null|string|Operator $on = null): self
+    public function join(string $tableName, null|string|Operator $on = null, string $type = ''): self
     {
         $join = ltrim(sprintf('%s JOIN %s', $type, $tableName));
         if (null !== $on) {
@@ -191,12 +172,12 @@ final class QueryBuilder
 
     public function leftJoin(string $tableName, null|string|Operator $on = null): self
     {
-        return $this->join($tableName, 'LEFT', $on);
+        return $this->join($tableName, $on, 'LEFT');
     }
 
     public function rightJoin(string $tableName, null|string|Operator $on = null): self
     {
-        return $this->join($tableName, 'RIGHT', $on);
+        return $this->join($tableName, $on, 'RIGHT');
     }
 
     public function where(string|Operator $where, ...$values): self

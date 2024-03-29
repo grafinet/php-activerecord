@@ -32,7 +32,7 @@ class QueryBuilderTest extends TestCase
         $options = $qb->join('table')
             ->leftJoin('table_left', 'table_left.id = table.id')
             ->rightJoin('table_right')
-            ->join('table_inner', 'INNER', $qb->eq('table_inner.id', 42))
+            ->join('table_inner', $qb->eq('table_inner.id', 42), 'INNER')
             ->toOptionsArray();
         $this->assertArrayHasKey('joins', $options);
         $this->assertArrayHasKey('conditions', $options);
@@ -176,10 +176,10 @@ EOJ,
             ->from('table tb')
             ->leftJoin('table2 tb2')
             ->rightJoin('table3 tb3', 'tb3.table_id = tb1.id')
-            ->join('table3 tb4', 'INNER', $qb->and(
+            ->join('table3 tb4', $qb->and(
                 'tb4.id = tb2.id',
                 $qb->eq('tb4.group', 'test123')
-            ))
+            ), 'INNER')
             ->where($qb->neq('tb.published_at', null))
             ->where('tb3.active')
             ->where('tb4.priority <> ?', 0)
