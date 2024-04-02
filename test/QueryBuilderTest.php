@@ -3,6 +3,9 @@
 use PhpActiveRecordQueryBuilder\QueryBuilder;
 use PHPUnit\Framework\TestCase;
 
+/**
+ * @group QueryBuilder
+ */
 class QueryBuilderTest extends TestCase
 {
     public function testHasSelectOption()
@@ -241,5 +244,22 @@ INNER JOIN table3 tb4 ON((tb4.id = tb2.id AND tb4.group = ?))',
         $this->assertInstanceOf(Author::class, $qb->last());
         $this->assertInstanceOf(Author::class, $qb->find()[0]);
         $this->assertInstanceOf(Author::class, $qb->all()[1]);
+    }
+
+    public function testResetState()
+    {
+        $qb = QueryBuilder::create();
+        $qb->select('a', 'b');
+        $qb->from('table t0');
+        $qb->limit(10);
+        $qb->offset(20);
+        $qb->where('a = ?', 1);
+        $qb->reset('from');
+        $qb->reset('limit');
+        $qb->reset('offset');
+        $qb->reset('where');
+        $options = $qb->toOptionsArray();
+        $this->assertArrayHasKey('select', $options);
+        $this->assertEquals(['select' => 'a, b'], $options);
     }
 }

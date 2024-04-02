@@ -4,6 +4,9 @@ use PhpActiveRecordQueryBuilder\Operator\ValueBag;
 use PhpActiveRecordQueryBuilder\QueryBuilder;
 use PHPUnit\Framework\TestCase;
 
+/**
+ * @group QueryBuilder
+ */
 class OperatorTest extends TestCase
 {
     public function testAndOperator(): void

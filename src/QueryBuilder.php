@@ -19,12 +19,14 @@ use PhpActiveRecordQueryBuilder\Operator\NotLike;
 use PhpActiveRecordQueryBuilder\Operator\Operator;
 use PhpActiveRecordQueryBuilder\Operator\OrOperator;
 use PhpActiveRecordQueryBuilder\Operator\ValueBag;
+use RuntimeException;
 use function array_merge;
 use function get_class;
 use function implode;
 use function ltrim;
 use function sprintf;
 
+/** @template T */
 final class QueryBuilder
 {
     public const ORDER_ASC = 'ASC';
@@ -44,33 +46,52 @@ final class QueryBuilder
     private ?int $offset = null;
     private array $include = [];
 
+    /**
+     * @param class-string<T>|null $modelClass
+     */
     public function __construct(private readonly ?string $modelClass)
     {
     }
 
+    /**
+     * @param class-string<T>|null $modelClass
+     * @return self<T>
+     */
     public static function create(?string $modelClass = null): self
     {
         return new self($modelClass);
     }
 
+    /**
+     * @return T[]
+     */
     public function all(): array
     {
         $func = "{$this->modelClass}::all";
         return $func($this->toOptionsArray());
     }
 
+    /**
+     * @return T|null
+     */
     public function first()
     {
         $func = "{$this->modelClass}::first";
         return $func($this->toOptionsArray());
     }
 
+    /**
+     * @return T|null
+     */
     public function last()
     {
         $func = "{$this->modelClass}::last";
         return $func($this->toOptionsArray());
     }
 
+    /**
+     * @return T[]
+     */
     public function find(): array
     {
         $func = "{$this->modelClass}::all";
@@ -132,6 +153,17 @@ final class QueryBuilder
         return $options;
     }
 
+    public function reset(string $what): self
+    {
+        match ($what) {
+            'from', 'limit', 'offset' => $this->{$what} = null,
+            'select', 'group', 'order', 'include' => $this->{$what} = [],
+            'joins', 'where', 'having' => $this->{$what} = $this->{$what . 'Parameters'} = [],
+            default => throw new RuntimeException(sprintf('Unsupported parameter "%s" for method %s', $what, __METHOD__)),
+        };
+        return $this;
+    }
+
     public function select(string ...$select): self
     {
         $this->select = array_merge($this->select, $select);
@@ -151,8 +183,8 @@ final class QueryBuilder
             $join .= " ON({$on})";
             if ($on instanceof Operator and $on->hasValue()) {
                 if ($on instanceof In) {
-                    throw new \RuntimeException(
-                        \sprintf('Unsupported operator type %s for method %s', get_class($on), __METHOD__)
+                    throw new RuntimeException(
+                        sprintf('Unsupported operator type %s for method %s', get_class($on), __METHOD__)
                     );
                 }
                 $value = $on->getValue();
@@ -207,8 +239,8 @@ final class QueryBuilder
     {
         if ($having instanceof Operator && $having->hasValue()) {
             if ($having instanceof In) {
-                throw new \RuntimeException(
-                    \sprintf('Unsupported operator type %s for method %s', get_class($having), __METHOD__)
+                throw new RuntimeException(
+                    sprintf('Unsupported operator type %s for method %s', get_class($having), __METHOD__)
                 );
             }
             $value = $having->getValue();
