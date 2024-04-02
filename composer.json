@@ -19,5 +19,8 @@
             "PhpActiveRecordQueryBuilder\\" : "src/"
         },
         "files": [ "ActiveRecord.php" ]
+    },
+    "scripts": {
+        "test": "php -d extension=pcov vendor/bin/phpunit --group QueryBuilder --coverage-html ./.phpunit.cache/html"
     }
 }
