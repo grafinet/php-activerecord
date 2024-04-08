@@ -2,6 +2,7 @@
 
 namespace PhpActiveRecordQueryBuilder;
 
+use ActiveRecord\Inflector;
 use PhpActiveRecordQueryBuilder\Operator\AndOperator;
 use PhpActiveRecordQueryBuilder\Operator\Between;
 use PhpActiveRecordQueryBuilder\Operator\Eq;
@@ -21,10 +22,12 @@ use PhpActiveRecordQueryBuilder\Operator\OrOperator;
 use PhpActiveRecordQueryBuilder\Operator\ValueBag;
 use RuntimeException;
 use function array_merge;
+use function basename;
 use function get_class;
 use function implode;
 use function ltrim;
 use function sprintf;
+use function str_replace;
 
 /** @template T */
 final class QueryBuilder
@@ -48,18 +51,27 @@ final class QueryBuilder
 
     /**
      * @param class-string<T>|null $modelClass
+     * @param string|null $tableAlias
      */
-    public function __construct(private readonly ?string $modelClass)
+    public function __construct(
+        private readonly ?string $modelClass,
+        private readonly ?string $tableAlias,
+    )
     {
+        if ($this->tableAlias) {
+            $tableName = $this->modelClass::$table_name ?: Inflector::instance()->tableize(basename(str_replace('\\', '/', $this->modelClass)));
+            $this->from = sprintf('`%s` `%s`', $tableName, $this->tableAlias);
+            $this->select(sprintf('`%s`.*', $this->tableAlias));
+        }
     }
 
     /**
      * @param class-string<T>|null $modelClass
      * @return self<T>
      */
-    public static function create(?string $modelClass = null): self
+    public static function create(?string $modelClass = null, ?string $tableAlias = null): self
     {
-        return new self($modelClass);
+        return new self($modelClass, $tableAlias);
     }
 
     /**
@@ -153,14 +165,16 @@ final class QueryBuilder
         return $options;
     }
 
-    public function reset(string $what): self
+    public function reset(string ...$options): self
     {
-        match ($what) {
-            'from', 'limit', 'offset' => $this->{$what} = null,
-            'select', 'group', 'order', 'include' => $this->{$what} = [],
-            'joins', 'where', 'having' => $this->{$what} = $this->{$what . 'Parameters'} = [],
-            default => throw new RuntimeException(sprintf('Unsupported parameter "%s" for method %s', $what, __METHOD__)),
-        };
+        foreach ($options as $option) {
+            match ($option) {
+                'from', 'limit', 'offset' => $this->{$option} = null,
+                'select', 'group', 'order', 'include' => $this->{$option} = [],
+                'joins', 'where', 'having' => $this->{$option} = $this->{$option . 'Parameters'} = [],
+                default => throw new RuntimeException(sprintf('Unsupported parameter "%s" for method %s', $option, __METHOD__)),
+            };
+        }
         return $this;
     }
 

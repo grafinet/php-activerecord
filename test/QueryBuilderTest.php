@@ -234,6 +234,18 @@ INNER JOIN table3 tb4 ON((tb4.id = tb2.id AND tb4.group = ?))',
         ], $options);
     }
 
+    public function testTableAlias()
+    {
+        $qb = QueryBuilder::create(Author::class, 't0');
+        $options = $qb->toOptionsArray();
+        $this->assertArrayHasKey('from', $options);
+        $this->assertArrayHasKey('select', $options);
+        $this->assertEquals('`t0`.*', $options['select']);
+        $this->assertEquals('`authors` `t0`', $options['from']);
+        $options2 = QueryBuilder::create(AuthorAttrAccessible::class, 't0')->toOptionsArray();
+        $this->assertEquals('`authors` `t0`', $options2['from']);
+    }
+
     public function testModelReturnsResults()
     {
         $qb = QueryBuilder::create(Author::class);
@@ -255,11 +267,12 @@ INNER JOIN table3 tb4 ON((tb4.id = tb2.id AND tb4.group = ?))',
         $qb->offset(20);
         $qb->where('a = ?', 1);
         $qb->reset('from');
-        $qb->reset('limit');
-        $qb->reset('offset');
+        $qb->reset('limit', 'offset');
         $qb->reset('where');
         $options = $qb->toOptionsArray();
         $this->assertArrayHasKey('select', $options);
         $this->assertEquals(['select' => 'a, b'], $options);
+        $this->expectException(RuntimeException::class);
+        $qb->reset('table');
     }
 }

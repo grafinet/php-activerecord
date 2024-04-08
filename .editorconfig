@@ -19,5 +19,8 @@ indent_size = 4
 [src/*.php]
 indent_style = space
 
+[test/{QueryBuilder,Operator}Test.php]
+indent_style = space
+
 [*.{xml,xml.dist}]
 indent_size = 4

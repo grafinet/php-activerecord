@@ -1,4 +1,4 @@
-# PHP ActiveRecord - Version 3.2.0 #
+# PHP ActiveRecord - Version 3.3.0 #
 
 by 
 
@@ -15,7 +15,7 @@ A brief summarization of what ActiveRecord is:
 > Active record is an approach to access data in a database. A database table or view is wrapped into a class,
 > thus an object instance is tied to a single row in the table. After creation of an object, a new row is added to
 > the table upon save. Any object loaded gets its information from the database; when an object is updated, the
-> corresponding row in the table is also updated. The wrapper class implements accessor methods or properties for
+> corresponding row in the table also is. The wrapper class implements accessor methods or properties for
 > each column in the table or view.
 
 More details can be found [here](http://en.wikipedia.org/wiki/Active_record_pattern).
@@ -31,7 +31,7 @@ Of course, there are some differences which will be obvious to the user if they 
 
 ## Supported Databases ##
 
-- MySQL
+- **MySQL**
 - SQLite
 - PostgreSQL
 - Oracle
@@ -165,7 +165,7 @@ $post->save();
 
 ### Delete ###
 Deleting a record will not *destroy* the object. This means that it will call sql to delete
-the record in your database but you can still use the object if you need to.
+the record in your database, but you can still use the object if you need to.
 
 ```php
 $post = Post::find(1);
