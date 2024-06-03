@@ -50,6 +50,7 @@ EOJ,
         $this->assertEquals(['1=1', 42], $options['conditions']);
 
         $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('Unsupported operator type PhpActiveRecordQueryBuilder\\Operator\\In for method PhpActiveRecordQueryBuilder\\QueryBuilder::join');
         $qb->leftJoin('bad_table', $qb->in('e', [1,2,3]));
     }
 
@@ -96,6 +97,7 @@ EOJ,
         $this->assertEquals('(a != ? AND b != ?)', $options4['having']);
 
         $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('Unsupported operator type PhpActiveRecordQueryBuilder\\Operator\\In for method PhpActiveRecordQueryBuilder\\QueryBuilder::having');
         QueryBuilder::create()
             ->having(
                 $qb->in('e', [1,2,3])
@@ -256,6 +258,39 @@ INNER JOIN table3 tb4 ON((tb4.id = tb2.id AND tb4.group = ?))',
         $this->assertInstanceOf(Author::class, $qb->last());
         $this->assertInstanceOf(Author::class, $qb->find()[0]);
         $this->assertInstanceOf(Author::class, $qb->all()[1]);
+
+        $qb2 = QueryBuilder::create();
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('Model class not specified');
+        $qb2->first();
+    }
+
+    public function testMassUpdateAndDelete()
+    {
+        Author::delete_all(['conditions' => ['author_id > 20']]);
+        $authors = [
+            ['author_id' => 21, 'name' => 'Autor 1', 'parent_author_id' => 1, 'publisher_id' => 1],
+            ['author_id' => 22, 'name' => 'Autor 1', 'parent_author_id' => 1, 'publisher_id' => 1],
+            ['author_id' => 23, 'name' => 'Autor 1', 'parent_author_id' => 1, 'publisher_id' => 1],
+        ];
+        foreach ($authors as $author) {
+            $a = new Author($author);
+            $a->save();
+        }
+        $qb = QueryBuilder::create(Author::class);
+        $qb->where('author_id > 20');
+        $updated_name = 'Updated ' . date('YmdHis');
+        $qb->updateAll(['name' => $updated_name]);
+        $this->assertSame($updated_name, $qb->last()?->name);
+
+        $qb->deleteAll();
+        $this->assertEmpty($qb->all());
+
+        $qb2 = QueryBuilder::create(Author::class, 'act');
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('Unsupported options array keys for updateAll: select, from');
+        $qb2->updateAll(['name' => $updated_name]);
+
     }
 
     public function testResetState()
@@ -273,6 +308,7 @@ INNER JOIN table3 tb4 ON((tb4.id = tb2.id AND tb4.group = ?))',
         $this->assertArrayHasKey('select', $options);
         $this->assertEquals(['select' => 'a, b'], $options);
         $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('Unsupported parameter "table" for method PhpActiveRecordQueryBuilder\\QueryBuilder::reset');
         $qb->reset('table');
     }
 }

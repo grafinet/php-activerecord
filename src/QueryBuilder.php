@@ -21,6 +21,9 @@ use PhpActiveRecordQueryBuilder\Operator\Operator;
 use PhpActiveRecordQueryBuilder\Operator\OrOperator;
 use PhpActiveRecordQueryBuilder\Operator\ValueBag;
 use RuntimeException;
+
+use function array_diff_key;
+use function array_flip;
 use function array_merge;
 use function basename;
 use function get_class;
@@ -74,12 +77,20 @@ final class QueryBuilder
         return new self($modelClass, $tableAlias);
     }
 
+    private function getStaticMethodToCall(string $methodName): string
+    {
+        if (!$this->modelClass) {
+            throw new RuntimeException('Model class not specified');
+        }
+        return "{$this->modelClass}::{$methodName}";
+    }
+
     /**
      * @return T[]
      */
     public function all(): array
     {
-        $func = "{$this->modelClass}::all";
+        $func = $this->getStaticMethodToCall('all');
         return $func($this->toOptionsArray());
     }
 
@@ -88,7 +99,7 @@ final class QueryBuilder
      */
     public function first()
     {
-        $func = "{$this->modelClass}::first";
+        $func = $this->getStaticMethodToCall('first');
         return $func($this->toOptionsArray());
     }
 
@@ -97,8 +108,38 @@ final class QueryBuilder
      */
     public function last()
     {
-        $func = "{$this->modelClass}::last";
+        $func = $this->getStaticMethodToCall('last');
         return $func($this->toOptionsArray());
+    }
+
+    /**
+     * @see Model::delete_all()
+     * @return int
+     */
+    public function deleteAll(): int
+    {
+        $options = $this->toOptionsArray();
+        if ($diff = array_diff_key($options, array_flip(['conditions', 'limit', 'order']))) {
+            throw new RuntimeException('Unsupported options array keys for deleteAll: ' . implode(', ', $diff));
+        }
+        $func = $this->getStaticMethodToCall('delete_all');
+        return $func($options);
+    }
+
+    /**
+     * @see Model::update_all()
+     * @param array $setValues
+     * @return int
+     */
+    public function updateAll(array $setValues = []): int
+    {
+        $options = $this->toOptionsArray();
+        if ($diff = array_diff_key($options, array_flip(['conditions', 'limit', 'order']))) {
+            throw new RuntimeException('Unsupported options array keys for updateAll: ' . implode(', ', array_keys($diff)));
+        }
+        $options['set'] = $setValues;
+        $func = $this->getStaticMethodToCall('update_all');
+        return $func($options);
     }
 
     /**
@@ -283,7 +324,7 @@ final class QueryBuilder
         return $this;
     }
 
-    public function offset(string $offset): self
+    public function offset(int $offset): self
     {
         $this->offset = $offset;
         return $this;
