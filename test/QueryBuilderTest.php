@@ -47,7 +47,7 @@ INNER JOIN table_inner ON(table_inner.id = ?)
 EOJ,
             $options['joins']
         );
-        $this->assertEquals(['1=1', 42], $options['conditions']);
+        $this->assertEquals(['(1=1)', 42], $options['conditions']);
 
         $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage('Unsupported operator type PhpActiveRecordQueryBuilder\\Operator\\In for method PhpActiveRecordQueryBuilder\\QueryBuilder::join');
@@ -79,7 +79,7 @@ EOJ,
             ->toOptionsArray();
 
         $this->assertArrayHasKey('conditions', $options2);
-        $this->assertEquals(['1=1', 10], $options2['conditions']);
+        $this->assertEquals(['(1=1)', 10], $options2['conditions']);
 
         $options3 = QueryBuilder::create()
             ->having($qb->eq('c', 30))
@@ -150,17 +150,17 @@ EOJ,
             ->where('1=1')
             ->toOptionsArray();
         $this->assertArrayHasKey('conditions', $options);
-        $this->assertEquals(['1=1'], $options['conditions']);
+        $this->assertEquals(['(1=1)'], $options['conditions']);
 
         $options2 = QueryBuilder::create()
             ->where('a = ? and c > ?', 1, 3)
             ->toOptionsArray();
-        $this->assertEquals(['a = ? and c > ?', 1, 3], $options2['conditions']);
+        $this->assertEquals(['(a = ? and c > ?)', 1, 3], $options2['conditions']);
 
         $options3 = QueryBuilder::create()
             ->where($qb->eq('b', 2))
             ->toOptionsArray();
-        $this->assertEquals(['b = ?', 2], $options3['conditions']);
+        $this->assertEquals(['(b = ?)', 2], $options3['conditions']);
 
         $options4 = $qb
             ->where(
@@ -170,7 +170,7 @@ EOJ,
                 )
             )
             ->toOptionsArray();
-        $this->assertEquals(['(b = ? OR c = ?)', 2, 3], $options4['conditions']);
+        $this->assertEquals(['((b = ? OR c = ?))', 2, 3], $options4['conditions']);
     }
 
     public function testAll()
@@ -186,19 +186,21 @@ EOJ,
                 $qb->eq('tb4.group', 'test123')
             ), 'INNER')
             ->where($qb->neq('tb.published_at', null))
-            ->where('tb3.active')
-            ->where('tb4.priority <> ?', 0)
-            ->where($qb->notIn('tb3.status', ['draft', 'pending']))
-            ->where($qb->or(
+            ->andWhere('tb3.active')
+            ->andWhere('tb4.priority <> ?', 0)
+            ->andWhere($qb->notIn('tb3.status', ['draft', 'pending']))
+            ->andWhere($qb->or(
                 $qb->eq('tb.deleted_at', null),
                 $qb->eq('tb2.user_id', 666)
             ))
-            ->where($qb->and(
+            ->andWhere($qb->and(
                 $qb->gte('tb.id', 2137),
                 $qb->gt('tb.updated_at', '2024-03-21'),
                 $qb->lt('tb.created_at', '2024-03-20'),
                 $qb->lte('tb4.likes', 1_000_000),
             ))
+            ->orWhere('tb2.id < ?', 10)
+            ->orWhere('tb2.id > ?', 20)
             ->groupBy('tb3.category')
             ->groupBy('tb2.status')
             ->having($qb->between('cnt', 100, 200))
@@ -221,7 +223,7 @@ INNER JOIN table3 tb4 ON((tb4.id = tb2.id AND tb4.group = ?))',
             'offset' => 30,
             'include' => ['user', 'category'],
             'conditions' => [
-                'tb.published_at IS NOT NULL AND tb3.active AND tb4.priority <> ? AND tb3.status NOT IN(?) AND (tb.deleted_at IS NULL OR tb2.user_id = ?) AND (tb.id >= ? AND tb.updated_at > ? AND tb.created_at < ? AND tb4.likes <= ?)',
+                '(tb.published_at IS NOT NULL AND tb3.active AND tb4.priority <> ? AND tb3.status NOT IN(?) AND (tb.deleted_at IS NULL OR tb2.user_id = ?) AND (tb.id >= ? AND tb.updated_at > ? AND tb.created_at < ? AND tb4.likes <= ?)) AND (tb2.id < ? OR tb2.id > ?)',
                 'test123',
                 0,
                 ['draft', 'pending'],
@@ -230,6 +232,8 @@ INNER JOIN table3 tb4 ON((tb4.id = tb2.id AND tb4.group = ?))',
                 '2024-03-21',
                 '2024-03-20',
                 1000000,
+                10,
+                20,
                 100,
                 200
             ]
@@ -301,6 +305,8 @@ INNER JOIN table3 tb4 ON((tb4.id = tb2.id AND tb4.group = ?))',
         $qb->limit(10);
         $qb->offset(20);
         $qb->where('a = ?', 1);
+        $qb->orWhere('b < ?', 5);
+        $qb->orWhere('b > ?', 9);
         $qb->reset('from');
         $qb->reset('limit', 'offset');
         $qb->reset('where');

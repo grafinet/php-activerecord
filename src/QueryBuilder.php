@@ -44,6 +44,8 @@ final class QueryBuilder
     private array $joinsParameters = [];
     private array $where = [];
     private array $whereParameters = [];
+    private array $orWhere = [];
+    private array $orWhereParameters = [];
     private array $group = [];
     private array $having = [];
     private array $havingParameters = [];
@@ -193,15 +195,18 @@ final class QueryBuilder
         if ($this->include) {
             $options['include'] = $this->include;
         }
-        $params = array_merge($this->joinsParameters, $this->whereParameters, $this->havingParameters);
+        $params = array_merge($this->joinsParameters, $this->whereParameters, $this->orWhereParameters, $this->havingParameters);
         if ($params && !$this->where) {
             $this->where[] = '1=1';
         }
         if ($this->where) {
             $options['conditions'] = [
-                implode(' AND ', $this->where),
+                '(' . implode(' AND ', $this->where) . ')',
                 ...$params
             ];
+        }
+        if ($this->orWhere) {
+            $options['conditions'][0] .= ' AND (' . implode(' OR ', $this->orWhere) . ')';
         }
         return $options;
     }
@@ -212,7 +217,8 @@ final class QueryBuilder
             match ($option) {
                 'from', 'limit', 'offset' => $this->{$option} = null,
                 'select', 'group', 'order', 'include' => $this->{$option} = [],
-                'joins', 'where', 'having' => $this->{$option} = $this->{$option . 'Parameters'} = [],
+                'joins', 'having' => $this->{$option} = $this->{$option . 'Parameters'} = [],
+                'where' => $this->orWhere = $this->orWhereParameters = $this->where = $this->whereParameters = [],
                 default => throw new RuntimeException(sprintf('Unsupported parameter "%s" for method %s', $option, __METHOD__)),
             };
         }
@@ -280,6 +286,28 @@ final class QueryBuilder
         $this->where[] = (string)$where;
         if ($values) {
             $this->whereParameters = array_merge($this->whereParameters, $values);
+        }
+        return $this;
+    }
+
+    public function andWhere(string|Operator $where, ...$values): self
+    {
+        return $this->where($where, ...$values);
+    }
+
+    public function orWhere(string|Operator $where, ...$values): self
+    {
+        if ($where instanceof Operator && $where->hasValue()) {
+            $value = $where->getValue();
+            if ($value instanceof ValueBag) {
+                $values = $value->getValues();
+            } else {
+                $values = [$value];
+            }
+        }
+        $this->orWhere[] = (string)$where;
+        if ($values) {
+            $this->orWhereParameters = array_merge($this->orWhereParameters, $values);
         }
         return $this;
     }
