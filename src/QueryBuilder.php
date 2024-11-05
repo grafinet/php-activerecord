@@ -358,9 +358,15 @@ final class QueryBuilder
         return $this;
     }
 
-    public function include(string ...$include): self
+    public function include(array|string ...$include): self
     {
-        $this->include = array_merge($this->include, $include);
+        $this->include = array_merge(
+            $this->include,
+            ...array_map(
+                fn($item) => is_array($item) ? $item : [$item],
+                $include
+            )
+        );
         return $this;
     }
 

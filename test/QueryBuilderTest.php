@@ -136,11 +136,12 @@ EOJ,
     public function testHasIncludeOption()
     {
         $options = QueryBuilder::create()
-            ->include('table1')
-            ->include('table2', 'table3')
+            ->include('table1', ['table2'])
+            ->include(['table3' => 'table4'])
+            ->include(['table5' => ['table6' => 'table7']])
             ->toOptionsArray();
         $this->assertArrayHasKey('include', $options);
-        $this->assertEquals(['table1', 'table2', 'table3'], $options['include']);
+        $this->assertEquals(['table1', 'table2', 'table3' => 'table4', 'table5' => ['table6' => 'table7']], $options['include']);
     }
 
     public function testHasConditionsOption()
@@ -208,7 +209,8 @@ EOJ,
             ->orderBy('tb1.name')
             ->limit(10)
             ->offset(30)
-            ->include('user', 'category')
+            ->include('user', ['category' => 'creator'])
+            ->include(['table10'])
             ->toOptionsArray();
         $this->assertEquals([
             'select' => 'tb.*, COUNT(tb2.*) as cnt, tb3.priority',
@@ -221,7 +223,7 @@ INNER JOIN table3 tb4 ON((tb4.id = tb2.id AND tb4.group = ?))',
             'order' => 'tb3.priority DESC, tb1.name ASC',
             'limit' => 10,
             'offset' => 30,
-            'include' => ['user', 'category'],
+            'include' => ['user', 'category' => 'creator', 'table10'],
             'conditions' => [
                 '(tb.published_at IS NOT NULL AND tb3.active AND tb4.priority <> ? AND tb3.status NOT IN(?) AND (tb.deleted_at IS NULL OR tb2.user_id = ?) AND (tb.id >= ? AND tb.updated_at > ? AND tb.created_at < ? AND tb4.likes <= ?)) AND (tb2.id < ? OR tb2.id > ?)',
                 'test123',
