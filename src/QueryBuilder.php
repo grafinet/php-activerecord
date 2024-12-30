@@ -370,77 +370,77 @@ final class QueryBuilder
         return $this;
     }
 
-    public function and(string|Operator ...$andFields): AndOperator
+    public static function and(string|Operator ...$andFields): AndOperator
     {
         return AndOperator::create(...$andFields);
     }
 
-    public function or(string|Operator ...$orFields): OrOperator
+    public static function or(string|Operator ...$orFields): OrOperator
     {
         return OrOperator::create(...$orFields);
     }
 
-    public function eq(string $columnName, ?string $value): Eq
+    public static function eq(string $columnName, mixed $value): Eq
     {
         return Eq::create($columnName, $value);
     }
 
-    public function neq(string $columnName, ?string $value): Neq
+    public static function neq(string $columnName, mixed $value): Neq
     {
         return Neq::create($columnName, $value);
     }
 
-    public function between(string $columnName, mixed $valueMin, mixed $valueMax): Between
+    public static function between(string $columnName, mixed $valueMin, mixed $valueMax): Between
     {
         return Between::create($columnName, $valueMin, $valueMax);
     }
 
-    public function findInSet(string $set, mixed $value, bool $not = false): FindInSet
+    public static function findInSet(string $set, mixed $value, bool $not = false): FindInSet
     {
         return FindInSet::create($set, $value, $not);
     }
 
-    public function gt(string $columnName, mixed $value): Gt
+    public static function gt(string $columnName, mixed $value): Gt
     {
         return Gt::create($columnName, $value);
     }
 
-    public function gte(string $columnName, mixed $value): Gte
+    public static function gte(string $columnName, mixed $value): Gte
     {
         return Gte::create($columnName, $value);
     }
 
-    public function in(string $columnName, array $values): In
+    public static function in(string $columnName, array $values): In
     {
         return In::create($columnName, $values);
     }
 
-    public function like(string $columnName, string $value, bool $rawValue = false): Like
+    public static function like(string $columnName, string $value, bool $rawValue = false): Like
     {
         return Like::create($columnName, $value, $rawValue);
     }
 
-    public function lt(string $columnName, mixed $value): Lt
+    public static function lt(string $columnName, mixed $value): Lt
     {
         return Lt::create($columnName, $value);
     }
 
-    public function lte(string $columnName, mixed $value): Lte
+    public static function lte(string $columnName, mixed $value): Lte
     {
         return Lte::create($columnName, $value);
     }
 
-    public function notBetween(string $columnName, mixed $valueMin, mixed $valueMax): NotBetween
+    public static function notBetween(string $columnName, mixed $valueMin, mixed $valueMax): NotBetween
     {
         return NotBetween::create($columnName, $valueMin, $valueMax);
     }
 
-    public function notIn(string $columnName, array $values): NotIn
+    public static function notIn(string $columnName, array $values): NotIn
     {
         return NotIn::create($columnName, $values);
     }
 
-    public function notLike(string $columnName, string $value, bool $rawValue = false): NotLike
+    public static function notLike(string $columnName, string $value, bool $rawValue = false): NotLike
     {
         return NotLike::create($columnName, $value, $rawValue);
     }
