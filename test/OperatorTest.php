@@ -34,6 +34,20 @@ class OperatorTest extends TestCase
         $this->assertEquals([1, 2], $and3->getValue()->getValues());
     }
 
+    public function testNestedValueBags(): void
+    {
+        $and = QueryBuilder::and(
+            QueryBuilder::eq('status_column', $v1 = 'draft'),
+            QueryBuilder::or(
+                QueryBuilder::eq('time_column', null),
+                QueryBuilder::lt('time_column', $v2 = '2024-01-01')
+            )
+        );
+        $this->assertEquals('(status_column = ? AND (time_column IS NULL OR time_column < ?))', (string)$and);
+        $this->assertEquals([$v1, $v2], $and->getValue()->getValues());
+        $this->assertInstanceOf(ValueBag::class, $and->getValue()->getValues(true)[1]);
+    }
+
     public function testBetweenOperator(): void
     {
         $qb = QueryBuilder::create();

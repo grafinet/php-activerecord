@@ -9,8 +9,21 @@ class ValueBag
 
     }
 
-    public function getValues(): array
+    public function getValues($raw = false): array
     {
-        return $this->values;
+        if ($raw) {
+            return $this->values;
+        }
+
+        $return = [];
+        foreach ($this->values as $value) {
+            if ($value instanceof ValueBag) {
+                $return = [...$return, ...$value->getValues()];
+            }
+            else {
+                $return[] = $value;
+            }
+        }
+        return $return;
     }
 }
