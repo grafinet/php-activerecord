@@ -461,7 +461,7 @@ class Model
 		}
 
 		// convert php's \DateTime to ours
-		if ($value instanceof \DateTime) {
+		if ($value instanceof \DateTimeInterface) {
 			$date_class = Config::instance()->get_date_class();
 			if (!($value instanceof $date_class))
 				$value = $date_class::createFromFormat(

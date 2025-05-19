@@ -65,6 +65,17 @@ class DateTimeTest extends SnakeCase_PHPUnit_Framework_TestCase
 		$this->assert_datetime_equals($a,$b);
 	}
 
+	public function test_immutable()
+	{
+		$dt = new \DateTimeImmutable();
+		$model = $this->get_model();
+
+		$model->assign_attribute('updated_at', $dt);
+		$dt2 = $model->read_attribute('updated_at');
+
+		$this->assert_datetime_equals($dt, $dt2);
+	}
+
 	public function test_set_time()
 	{
 		$a = new \DateTime();

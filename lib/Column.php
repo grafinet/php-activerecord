@@ -181,7 +181,7 @@ class Column
 				if ($value instanceof $date_class)
 					return $value;
 
-				if ($value instanceof \DateTime)
+				if ($value instanceof \DateTimeInterface)
 					return $date_class::createFromFormat(
 						Connection::DATETIME_TRANSLATE_FORMAT,
 						$value->format(Connection::DATETIME_TRANSLATE_FORMAT),

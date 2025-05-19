@@ -384,7 +384,7 @@ class Table
 	/**
 	 * Add a relationship.
 	 *
-	 * @param Relationship $relationship a Relationship object
+	 * @param AbstractRelationship $relationship a Relationship object
 	 */
 	private function add_relationship($relationship)
 	{
@@ -431,7 +431,7 @@ class Table
 		$date_class = Config::instance()->get_date_class();
 		foreach ($hash as $name => &$value)
 		{
-			if ($value instanceof $date_class || $value instanceof \DateTime)
+			if ($value instanceof $date_class || $value instanceof \DateTimeInterface)
 			{
 				if (isset($this->columns[$name]) && $this->columns[$name]->type == Column::DATE)
 					$hash[$name] = $this->conn->date_to_string($value);
